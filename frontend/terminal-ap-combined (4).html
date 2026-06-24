@@ -1,0 +1,1584 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Prompt2Terminal — Control Center</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;family=Geist:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-fixed-dim": "#b4c5ff",
+                    "inverse-on-surface": "#313030",
+                    "surface-container-high": "#2a2a2a",
+                    "on-tertiary-fixed": "#1a1c1c",
+                    "inverse-surface": "#e5e2e1",
+                    "surface-tint": "#c6c6c7",
+                    "on-primary-fixed-variant": "#454747",
+                    "primary": "#ffffff",
+                    "on-surface": "#e5e2e1",
+                    "on-secondary-container": "#cdd7ff",
+                    "primary-container": "#e2e2e2",
+                    "tertiary-container": "#e2e2e2",
+                    "surface-bright": "#3a3939",
+                    "tertiary-fixed": "#e2e2e2",
+                    "surface-container": "#201f1f",
+                    "on-secondary-fixed-variant": "#003ea8",
+                    "on-secondary-fixed": "#00174b",
+                    "on-secondary": "#002a78",
+                    "primary-fixed": "#e2e2e2",
+                    "surface-container-lowest": "#0e0e0e",
+                    "surface": "#141313",
+                    "primary-fixed-dim": "#c6c6c7",
+                    "on-surface-variant": "#c4c7c8",
+                    "surface-dim": "#141313",
+                    "tertiary-fixed-dim": "#c6c6c7",
+                    "error": "#ffb4ab",
+                    "on-error-container": "#ffdad6",
+                    "error-container": "#93000a",
+                    "outline": "#8e9192",
+                    "surface-variant": "#353434",
+                    "secondary-fixed": "#dbe1ff",
+                    "tertiary": "#ffffff",
+                    "secondary": "#b4c5ff",
+                    "on-tertiary": "#2f3131",
+                    "on-tertiary-fixed-variant": "#454747",
+                    "background": "#141313",
+                    "on-error": "#690005",
+                    "inverse-primary": "#5d5f5f",
+                    "on-primary-container": "#636565",
+                    "on-primary-fixed": "#1a1c1c",
+                    "on-primary": "#2f3131",
+                    "surface-container-highest": "#353434",
+                    "secondary-container": "#0053db",
+                    "on-background": "#e5e2e1",
+                    "outline-variant": "#444748",
+                    "surface-container-low": "#1c1b1b",
+                    "on-tertiary-container": "#636565"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "unit": "4px",
+                    "gutter": "16px",
+                    "panel-padding": "12px",
+                    "margin": "24px"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Geist"],
+                    "body-lg": ["Geist"],
+                    "body-md": ["Geist"],
+                    "code-xs": ["JetBrains Mono"],
+                    "label-md": ["JetBrains Mono"],
+                    "headline-md": ["Geist"],
+                    "code-sm": ["JetBrains Mono"]
+            },
+            "fontSize": {
+                    "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "code-xs": ["11px", {"lineHeight": "14px", "fontWeight": "400"}],
+                    "label-md": ["13px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "code-sm": ["12px", {"lineHeight": "18px", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        body {
+            background-color: #0A0A0A;
+            color: #D4D4D4;
+            font-family: 'Geist', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #141313;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333333;
+        }
+        .terminal-glow {
+            box-shadow: inset 0 0 40px rgba(255, 255, 255, 0.02);
+        }
+        .step-active::after {
+            content: "";
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #ffffff;
+        }
+        .panel-border {
+            border: 1px solid #262626;
+        }
+        .terminal-bg {
+            background-color: #0A0A0A;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #141313;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #353434;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #444748;
+        }
+        .terminal-row:hover {
+            background-color: #1F1F1F;
+        }
+
+        /* View switching */
+        .view-panel { display: none; height: 100%; min-height: 0; }
+        .view-panel.active { display: flex; flex-direction: column; }
+
+        /* Shared sidebar nav active/inactive states (driven by JS via data-view) */
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.125rem;
+            transition: background-color 0.15s ease, color 0.15s ease;
+            color: #c4c7c8;
+        }
+        .nav-link:hover { background-color: #2a2a2a; }
+        .nav-link.nav-active {
+            background-color: #353434;
+            color: #ffffff;
+            font-weight: 700;
+            border-left: 2px solid #ffffff;
+        }
+        .nav-link .material-symbols-outlined { font-size: 22px; }
+    </style>
+</head>
+<body class="flex h-screen w-screen selection:bg-primary selection:text-surface overflow-hidden">
+
+<!-- Shared Persistent SideNavBar -->
+<aside class="flex flex-col h-full py-gutter px-panel-padding bg-surface-container dark:bg-surface-container h-screen w-64 border-r border-outline-variant shrink-0">
+<div class="mb-8 px-unit">
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary tracking-tight">Prompt2Terminal</h1>
+<p class="font-label-md text-label-md text-on-surface-variant mt-1 opacity-60">Auto-Pilot Active</p>
+</div>
+<nav class="flex-1 space-y-unit" id="main-nav">
+<a class="nav-link font-label-md text-label-md" data-view="new-workflow" href="#new-workflow">
+<span class="material-symbols-outlined">add_box</span>
+<span>New Workflow</span>
+</a>
+<a class="nav-link font-label-md text-label-md" data-view="history" href="#history">
+<span class="material-symbols-outlined">history</span>
+<span>History</span>
+</a>
+<a class="nav-link font-label-md text-label-md" data-view="reports" href="#reports">
+<span class="material-symbols-outlined">analytics</span>
+<span>Reports</span>
+</a>
+<a class="nav-link font-label-md text-label-md mt-auto" data-view="settings" href="#settings">
+<span class="material-symbols-outlined">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="mt-margin pt-margin border-t border-outline-variant flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center overflow-hidden border border-outline-variant shrink-0">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5SOMbgid5iXh81pv5AfNeCX3gMxfiWhKSOGkRyPZSkZP9GrapyXiH66YcYnxP4DuYyNqJmChIOGj8UcKZduPZTnXjJPslZ1XpeGVaOklxGlsBWicR6BlcXWa0Db7XYrlwSVIO60SNVV85cYUXflp8_tFrNY_BYCee93xN3RI1738umX0WgfIU-B_9KUOFM9xSC-mHC_rohgQe6K33nqNmSB4kk5zhDwy3y6miX5kn7G3mg34-w37Wgc4fYk1MWIQzVjCMSe7nybM"/>
+</div>
+<div class="flex flex-col flex-1 min-w-0">
+<span class="font-label-md text-label-md text-primary font-bold truncate" id="sidebar-username">Admin_User</span>
+<span class="font-code-xs text-code-xs text-on-surface-variant">Pro Plan</span>
+</div>
+<button id="logout-btn" title="Log out" class="ml-1 shrink-0 text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined" style="font-size:20px">logout</span>
+</button>
+</div>
+</aside>
+
+<!-- View: New Workflow (page 1) -->
+<div class="view-panel active flex-1 min-w-0 overflow-hidden" id="view-new-workflow">
+<main class="flex-1 flex flex-col min-w-0 bg-background h-full overflow-hidden">
+<!-- TopAppBar (Simulated as content header) -->
+<header class="flex items-center justify-between px-margin w-full h-14 border-b border-outline-variant bg-surface dark:bg-surface">
+<div class="flex items-center gap-4">
+<span class="font-code-sm text-code-sm font-bold text-primary">PROJECT_TERMINAL_V1.4</span>
+<div class="flex items-center gap-2 px-2 py-0.5 rounded-full bg-surface-container-highest border border-outline-variant">
+<span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+<span class="font-code-xs text-code-xs text-on-surface">ONLINE</span>
+</div>
+</div>
+<div class="flex items-center gap-margin">
+<div class="relative hidden lg:block">
+<input class="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT px-3 py-1.5 font-code-sm text-code-sm w-64 focus:outline-none focus:border-outline text-on-surface transition-all" placeholder="Search parameters..." type="text"/>
+<span class="material-symbols-outlined absolute right-2 top-1.5 text-on-surface-variant text-sm">search</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">help_outline</button>
+</div>
+</div>
+</header>
+<!-- Dynamic Content Canvas -->
+<div class="flex-1 overflow-y-auto p-margin space-y-margin">
+<!-- Top Section: Primary Objective -->
+<section class="grid grid-cols-1 gap-gutter">
+<div class="bg-surface-container-low border border-outline-variant p-panel-padding rounded-lg flex flex-col gap-unit">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest opacity-60">Primary Objective</label>
+<div class="flex gap-margin items-end">
+<textarea class="flex-1 bg-surface-container-lowest border border-outline-variant p-4 font-body-lg text-body-lg text-primary focus:border-primary focus:ring-0 resize-none min-h-[100px]" placeholder="Describe your desired system outcome or autonomous workflow goal..."></textarea>
+<button class="bg-primary text-surface font-label-md text-label-md font-bold px-8 py-4 h-[100px] hover:bg-primary-container transition-all active:scale-95 flex flex-col items-center justify-center gap-2">
+<span class="material-symbols-outlined">bolt</span>
+                            GENERATE PLAN
+                        </button>
+</div>
+</div>
+</section>
+<!-- Middle Section: Active Workflow Timeline (3 Columns) -->
+<section class="grid grid-cols-3 gap-gutter">
+<!-- Active Workflow Status -->
+<div class="col-span-2 bg-surface-container-low border border-outline-variant p-panel-padding rounded-lg overflow-hidden relative">
+<div class="flex items-center justify-between mb-4 border-b border-outline-variant pb-2">
+<h3 class="font-headline-md text-headline-md text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">account_tree</span>
+                            Active Workflow
+                        </h3>
+<span class="font-code-sm text-code-sm text-on-surface-variant bg-surface-container-highest px-2 py-0.5 rounded-full border border-outline-variant">ID: 8842-AXQ</span>
+</div>
+<div class="relative flex justify-between items-center px-4 py-8">
+<!-- Connecting Line -->
+<div class="absolute top-1/2 left-8 right-8 h-[1px] bg-outline-variant -translate-y-1/2 z-0"></div>
+<div class="absolute top-1/2 left-8 w-1/4 h-[1px] bg-primary -translate-y-1/2 z-0"></div>
+<!-- Steps -->
+<div class="relative z-10 flex flex-col items-center gap-2 group">
+<div class="w-8 h-8 rounded-full bg-primary text-surface flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<span class="font-code-xs text-code-xs text-primary font-bold">Goal Analysis</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-2 group">
+<div class="w-8 h-8 rounded-full bg-primary text-surface flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.3)] animate-pulse">
+<span class="material-symbols-outlined text-lg">sync</span>
+</div>
+<span class="font-code-xs text-code-xs text-primary font-bold">Planning</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-2 group">
+<div class="w-8 h-8 rounded-full bg-surface-container-lowest border border-outline-variant text-on-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-lg">security</span>
+</div>
+<span class="font-code-xs text-code-xs text-on-surface-variant">Safety</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-2 group">
+<div class="w-8 h-8 rounded-full bg-surface-container-lowest border border-outline-variant text-on-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-lg">play_arrow</span>
+</div>
+<span class="font-code-xs text-code-xs text-on-surface-variant">Execution</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-2 group">
+<div class="w-8 h-8 rounded-full bg-surface-container-lowest border border-outline-variant text-on-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-lg">description</span>
+</div>
+<span class="font-code-xs text-code-xs text-on-surface-variant">Report</span>
+</div>
+</div>
+</div>
+<!-- Environment/Stats Panel -->
+<div class="col-span-1 bg-surface-container-low border border-outline-variant p-panel-padding rounded-lg">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest opacity-60 mb-4">Instance Health</h3>
+<div class="space-y-gutter">
+<div class="flex flex-col gap-1">
+<div class="flex justify-between font-code-xs text-code-xs text-on-surface-variant uppercase">
+<span>Compute Load</span>
+<span class="text-primary">42%</span>
+</div>
+<div class="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[42%]"></div>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex justify-between font-code-xs text-code-xs text-on-surface-variant uppercase">
+<span>Memory Usage</span>
+<span class="text-primary">2.1GB</span>
+</div>
+<div class="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[65%]"></div>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex justify-between font-code-xs text-code-xs text-on-surface-variant uppercase">
+<span>Efficiency Index</span>
+<span class="text-primary">0.98</span>
+</div>
+<div class="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[98%]"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Bottom Section: Large Terminal Output Panel -->
+<section class="flex-1 min-h-[400px] flex flex-col bg-surface-container-lowest border border-outline-variant rounded-lg terminal-glow overflow-hidden">
+<div class="flex items-center justify-between px-panel-padding py-2 border-b border-outline-variant bg-surface-container">
+<div class="flex items-center gap-4">
+<div class="flex gap-1.5">
+<div class="w-2.5 h-2.5 rounded-full bg-[#FF5F56]"></div>
+<div class="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]"></div>
+<div class="w-2.5 h-2.5 rounded-full bg-[#27C93F]"></div>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-on-surface-variant">terminal</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">logs — autopilot-core-v1</span>
+</div>
+</div>
+<div class="flex gap-4">
+<button id="terminal-search-btn" class="material-symbols-outlined text-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer" title="Search logs">search</button>
+<button id="terminal-download-btn" class="material-symbols-outlined text-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer" title="Download logs">download</button>
+<button id="terminal-close-btn" class="material-symbols-outlined text-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer" title="Clear terminal">close</button>
+</div>
+</div>
+<div id="terminal-search-bar" class="hidden px-panel-padding py-2 border-b border-outline-variant bg-surface-container-low flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">search</span>
+<input id="terminal-search-input" class="flex-1 bg-transparent border-none focus:ring-0 text-code-sm font-code-sm text-primary p-0 outline-none" placeholder="Search logs..." type="text"/>
+<button id="terminal-search-clear" class="material-symbols-outlined text-on-surface-variant text-sm hover:text-primary">close</button>
+</div>
+<div class="flex-1 p-panel-padding font-code-sm text-code-sm overflow-y-auto space-y-1" id="terminal-stream">
+<div class="flex gap-4 opacity-50">
+<span class="w-20 shrink-0 text-on-surface-variant">[14:02:11]</span>
+<span class="text-primary">SYSTEM: Core initialized. All systems nominal.</span>
+</div>
+<div class="flex gap-4">
+<span class="w-20 shrink-0 text-on-surface-variant">[14:02:12]</span>
+<span class="text-blue-400">INFO: Establishing secure handshake with neural-kernel-01...</span>
+</div>
+<div class="flex gap-4">
+<span class="w-20 shrink-0 text-on-surface-variant">[14:02:14]</span>
+<span class="text-green-400">SUCCESS: Handshake verified. Latency: 4ms.</span>
+</div>
+<div class="flex gap-4">
+<span class="w-20 shrink-0 text-on-surface-variant">[14:05:45]</span>
+<span class="text-primary">USER_INPUT: Received primary objective string.</span>
+</div>
+<div class="flex gap-4">
+<span class="w-20 shrink-0 text-on-surface-variant">[14:05:46]</span>
+<span class="text-yellow-400">WARN: Objective scope exceeds standard safety buffer. Adjusting...</span>
+</div>
+<div class="flex gap-4">
+<span class="w-20 shrink-0 text-on-surface-variant">[14:05:47]</span>
+<span class="text-primary">PLANNER: Generating multi-step execution vector.</span>
+</div>
+<div class="flex gap-4">
+<span class="w-20 shrink-0 text-on-surface-variant">[14:05:48]</span>
+<span class="text-on-surface-variant">... analyzing dependencies (12/42)</span>
+</div>
+<div class="flex gap-4">
+<span class="w-20 shrink-0 text-on-surface-variant">[14:05:50]</span>
+<span class="text-on-surface-variant">... verifying API endpoints (8/8)</span>
+</div>
+<div class="flex gap-4">
+<span class="w-20 shrink-0 text-on-surface-variant">[14:05:52]</span>
+<span class="text-primary">PLANNER: Step 1 "Goal Analysis" complete. Proceeding to "Planning".</span>
+</div>
+<div class="flex gap-4">
+<span class="w-20 shrink-0 text-on-surface-variant">[14:05:55]</span>
+<span class="text-blue-400">INFO: Running simulation scenario 01-A (Optimistic)</span>
+</div>
+<div class="flex gap-4">
+<span class="w-20 shrink-0 text-on-surface-variant">[14:05:56]</span>
+<span class="text-blue-400">INFO: Running simulation scenario 01-B (Conservative)</span>
+</div>
+<div class="flex gap-4">
+<span class="w-20 shrink-0 text-on-surface-variant font-bold">[CURR]</span>
+<span class="text-primary animate-pulse">_</span>
+</div>
+</div>
+<div class="p-2 border-t border-outline-variant bg-surface-container-low flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">chevron_right</span>
+<input class="flex-1 bg-transparent border-none focus:ring-0 text-code-sm font-code-sm text-primary p-0" placeholder="Type command to override or inspect..." type="text"/>
+</div>
+</section>
+</div>
+</main>
+</div>
+
+<!-- View: Reports / Execution Report (page 2) -->
+<div class="view-panel flex-1 min-w-0" id="view-reports">
+<div class="flex-1 flex flex-col min-w-0 bg-background overflow-y-auto custom-scrollbar">
+<!-- TopAppBar -->
+<header class="flex items-center justify-between px-6 w-full h-14 border-b border-outline-variant bg-surface shrink-0">
+<div class="flex items-center gap-4">
+<span class="font-code-sm text-code-sm font-bold text-primary">WF-9823 / EXECUTION_REPORT</span>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative group">
+<input class="bg-surface-container-lowest border border-outline-variant px-3 py-1 text-code-sm font-code-sm rounded w-48 focus:w-64 focus:border-primary transition-all duration-200 outline-none" placeholder="Search logs..." type="text"/>
+<span class="material-symbols-outlined absolute right-2 top-1.5 text-on-surface-variant text-sm">search</span>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors scale-95 duration-150">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors scale-95 duration-150">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+</div>
+</header>
+<main class="p-6 space-y-6 max-w-7xl mx-auto w-full">
+<!-- Summary Header -->
+<section class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<div class="flex items-center gap-3 mb-1">
+<h2 class="font-headline-lg text-headline-lg text-primary">Execution Report for workflow WF-9823</h2>
+<span class="px-2 py-0.5 rounded bg-primary text-background font-label-md text-label-md">Successful Execution</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Initiated by System Scheduler at 2023-10-24 14:02:11 UTC</p>
+</div>
+<div class="flex gap-2">
+<button class="px-4 py-2 border border-outline-variant text-primary font-label-md text-label-md hover:bg-surface-container-high transition-colors">Export PDF</button>
+<button class="px-4 py-2 bg-primary text-background font-label-md text-label-md hover:opacity-90 transition-opacity">Rerun Workflow</button>
+</div>
+</section>
+<!-- Key Metrics Row -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+<div class="panel-border bg-surface-container p-4">
+<p class="font-code-xs text-code-xs text-on-surface-variant uppercase tracking-wider mb-2">Commands Executed</p>
+<div class="flex items-baseline gap-2">
+<span class="font-headline-lg text-headline-lg text-primary">142</span>
+<span class="font-code-xs text-code-xs text-on-surface-variant text-green-400">+12%</span>
+</div>
+</div>
+<div class="panel-border bg-surface-container p-4">
+<p class="font-code-xs text-code-xs text-on-surface-variant uppercase tracking-wider mb-2">Success Rate</p>
+<div class="flex items-baseline gap-2">
+<span class="font-headline-lg text-headline-lg text-primary">100%</span>
+<span class="material-symbols-outlined text-green-400 text-sm">check_circle</span>
+</div>
+</div>
+<div class="panel-border bg-surface-container p-4">
+<p class="font-code-xs text-code-xs text-on-surface-variant uppercase tracking-wider mb-2">Risk Score</p>
+<div class="flex items-baseline gap-2">
+<span class="font-headline-lg text-headline-lg text-primary">0.02</span>
+<span class="font-code-xs text-code-xs text-on-surface-variant">Low Impact</span>
+</div>
+</div>
+<div class="panel-border bg-surface-container p-4">
+<p class="font-code-xs text-code-xs text-on-surface-variant uppercase tracking-wider mb-2">Execution Time</p>
+<div class="flex items-baseline gap-2">
+<span class="font-headline-lg text-headline-lg text-primary">4m 12s</span>
+<span class="font-code-xs text-code-xs text-on-surface-variant">0.4s p/cmd</span>
+</div>
+</div>
+</section>
+<!-- Middle Row: Generated Files -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="lg:col-span-1 flex flex-col gap-4">
+<h3 class="font-label-md text-label-md text-primary uppercase tracking-widest border-l-2 border-primary pl-3">Generated Files</h3>
+<div class="panel-border bg-surface-container divide-y divide-outline-variant">
+<div class="p-panel-padding flex items-center justify-between group hover:bg-surface-container-high transition-colors cursor-pointer">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant">description</span>
+<span class="font-code-sm text-code-sm text-primary">deployment_log.txt</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">download</span>
+</div>
+<div class="p-panel-padding flex items-center justify-between group hover:bg-surface-container-high transition-colors cursor-pointer">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant">settings_ethernet</span>
+<span class="font-code-sm text-code-sm text-primary">cluster_config.yaml</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">download</span>
+</div>
+<div class="p-panel-padding flex items-center justify-between group hover:bg-surface-container-high transition-colors cursor-pointer">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant">analytics</span>
+<span class="font-code-sm text-code-sm text-primary">health_report.json</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">download</span>
+</div>
+</div>
+</div>
+<!-- Visualization Panel (Bento Placeholder) -->
+<div class="lg:col-span-2 panel-border bg-surface-container-low overflow-hidden relative min-h-[200px]">
+<div class="absolute inset-0 opacity-20 pointer-events-none">
+
+</div>
+<div class="relative z-10 p-6 flex flex-col h-full justify-center">
+<h4 class="font-headline-md text-headline-md text-primary mb-2">Network Topology Analysis</h4>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-md">The execution mapped 14 microservices and established 22 internal peering routes with zero latency regression.</p>
+<div class="mt-6 flex gap-4">
+<div class="flex flex-col">
+<span class="font-code-xs text-code-xs text-on-surface-variant">NODES</span>
+<span class="font-headline-md text-headline-md text-primary">12</span>
+</div>
+<div class="w-[1px] h-full bg-outline-variant"></div>
+<div class="flex flex-col">
+<span class="font-code-xs text-code-xs text-on-surface-variant">LATENCY</span>
+<span class="font-headline-md text-headline-md text-primary">14ms</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Bottom Section: Terminal Replay -->
+<section class="space-y-4">
+<h3 class="font-label-md text-label-md text-primary uppercase tracking-widest border-l-2 border-primary pl-3">Terminal Replay</h3>
+<div class="panel-border terminal-bg rounded overflow-hidden">
+<!-- Terminal Header -->
+<div class="bg-surface-container-high px-4 py-2 flex items-center justify-between border-b border-outline-variant">
+<div class="flex items-center gap-2">
+<div class="w-2.5 h-2.5 rounded-full bg-error"></div>
+<div class="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
+<div class="w-2.5 h-2.5 rounded-full bg-green-500"></div>
+<span class="ml-4 font-code-xs text-code-xs text-on-surface-variant">bash — workflow-engine — 80x24</span>
+</div>
+<span id="replay-copy-btn" class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors cursor-pointer" title="Copy to clipboard">content_copy</span>
+</div>
+<!-- Terminal Body -->
+<div class="p-6 font-code-sm text-code-sm text-[#D4D4D4] leading-relaxed overflow-x-auto custom-scrollbar">
+<div class="flex gap-4">
+<span class="text-on-surface-variant select-none">1</span>
+<span><span class="text-secondary">$</span> kubectl apply -f ./k8s/deployment.yaml</span>
+</div>
+<div class="flex gap-4">
+<span class="text-on-surface-variant select-none">2</span>
+<span class="text-on-surface-variant">deployment.apps/web-server-v2 created</span>
+</div>
+<div class="flex gap-4">
+<span class="text-on-surface-variant select-none">3</span>
+<span class="text-on-surface-variant">service/web-server-v2-svc created</span>
+</div>
+<div class="flex gap-4">
+<span class="text-on-surface-variant select-none">4</span>
+<span><span class="text-secondary">$</span> kubectl rollout status deployment/web-server-v2</span>
+</div>
+<div class="flex gap-4">
+<span class="text-on-surface-variant select-none">5</span>
+<span class="text-green-400">Waiting for deployment "web-server-v2" rollout to finish: 0 of 3 updated replicas are available...</span>
+</div>
+<div class="flex gap-4">
+<span class="text-on-surface-variant select-none">6</span>
+<span class="text-green-400">Waiting for deployment "web-server-v2" rollout to finish: 1 of 3 updated replicas are available...</span>
+</div>
+<div class="flex gap-4">
+<span class="text-on-surface-variant select-none">7</span>
+<span class="text-green-400">deployment "web-server-v2" successfully rolled out</span>
+</div>
+<div class="flex gap-4">
+<span class="text-on-surface-variant select-none">8</span>
+<span><span class="text-secondary">$</span> ./scripts/health_check.sh --target=prod</span>
+</div>
+<div class="flex gap-4">
+<span class="text-on-surface-variant select-none">9</span>
+<span class="text-primary">[INFO]</span> <span>Starting health probe on 14 endpoints...</span>
+</div>
+<div class="flex gap-4">
+<span class="text-on-surface-variant select-none">10</span>
+<span class="text-green-400">[PASS]</span> <span>All endpoints returned 200 OK.</span>
+</div>
+<div class="flex gap-4 mt-2">
+<span class="text-on-surface-variant select-none">11</span>
+<span class="animate-pulse bg-primary w-2 h-4"></span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer / Status Bar -->
+<footer class="mt-auto h-8 bg-surface-container-lowest border-t border-outline-variant px-margin flex items-center justify-between">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+<span class="font-code-xs text-code-xs text-on-surface-variant">ENGINE: STABLE</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-[14px]">cloud_done</span>
+<span class="font-code-xs text-code-xs text-on-surface-variant">SYNCED</span>
+</div>
+</div>
+<div class="font-code-xs text-code-xs text-on-surface-variant">
+                UTF-8 | LF | NODE_V18.1
+            </div>
+</footer>
+</div>
+</div>
+
+<!-- View: History / Audit Log (page 3) -->
+<div class="view-panel flex-1 min-w-0" id="view-history">
+<main class="flex-1 flex flex-col min-w-0 bg-surface">
+<!-- TopAppBar (Shared Component) -->
+<header class="flex items-center justify-between px-margin w-full h-14 border-b border-outline-variant bg-surface dark:bg-surface">
+<div class="flex items-center gap-4 flex-1">
+<span class="font-code-sm text-code-sm font-bold text-primary">AUDIT_LOG_V2.0</span>
+<div class="relative flex-1 max-w-xl ml-4">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">search</span>
+</div>
+<input class="block w-full pl-10 pr-24 py-1.5 bg-surface-container-lowest border border-outline-variant rounded-lg font-code-sm text-code-sm text-on-surface focus:ring-1 focus:ring-primary focus:border-primary transition-all" placeholder="Search workflows, users, or status..." type="text"/>
+<div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+<kbd class="px-1.5 py-0.5 font-code-xs text-code-xs bg-surface-container-high text-on-surface-variant border border-outline-variant rounded flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">keyboard_command_key</span>K
+                        </kbd>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4 ml-gutter">
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="h-6 w-[1px] bg-outline-variant mx-1"></div>
+<button class="px-3 py-1.5 bg-primary text-surface font-label-md text-label-md rounded hover:opacity-90 transition-opacity">
+                    Export CSV
+                </button>
+</div>
+</header>
+<!-- Content Body -->
+<div class="flex-1 overflow-hidden flex flex-col">
+<!-- Filter Bar -->
+<div class="px-margin py-3 border-b border-outline-variant flex items-center justify-between bg-surface-container-low">
+<div class="flex gap-2">
+<div class="relative">
+<button id="filter-btn" class="flex items-center gap-2 px-3 py-1 border border-outline-variant rounded font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[16px]">filter_list</span>
+                        Filters
+                    </button>
+<!-- Filter Dropdown -->
+<div id="filter-dropdown" class="hidden absolute left-0 top-full mt-1 z-50 w-56 bg-surface-container border border-outline-variant rounded shadow-lg">
+<div class="px-3 py-2 border-b border-outline-variant">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider text-[11px]">Filter by Status</span>
+</div>
+<div class="p-1">
+<button class="filter-option w-full text-left flex items-center gap-2 px-3 py-2 rounded font-label-md text-label-md text-on-surface hover:bg-surface-container-high transition-colors" data-filter="all">
+<span class="w-2 h-2 rounded-full bg-on-surface-variant"></span> All
+</button>
+<button class="filter-option w-full text-left flex items-center gap-2 px-3 py-2 rounded font-label-md text-label-md text-on-surface hover:bg-surface-container-high transition-colors" data-filter="running">
+<span class="w-2 h-2 rounded-full bg-blue-400"></span> Running
+</button>
+<button class="filter-option w-full text-left flex items-center gap-2 px-3 py-2 rounded font-label-md text-label-md text-on-surface hover:bg-surface-container-high transition-colors" data-filter="success">
+<span class="w-2 h-2 rounded-full bg-green-400"></span> Success
+</button>
+<button class="filter-option w-full text-left flex items-center gap-2 px-3 py-2 rounded font-label-md text-label-md text-on-surface hover:bg-surface-container-high transition-colors" data-filter="failed">
+<span class="w-2 h-2 rounded-full bg-error"></span> Failed
+</button>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-1 ml-4">
+<span class="font-label-md text-label-md text-on-surface-variant mr-2">Showing:</span>
+<div class="flex items-center gap-1 px-2 py-0.5 bg-surface-container-highest border border-outline-variant rounded font-code-xs text-code-xs text-primary">
+                            Status: All <span class="material-symbols-outlined text-[12px]">close</span>
+</div>
+</div>
+</div>
+<div class="font-code-xs text-code-xs text-on-surface-variant">
+                    128 Records Found
+                </div>
+</div>
+<!-- Audit Table -->
+<div class="flex-1 overflow-auto custom-scrollbar">
+<table class="w-full text-left border-collapse">
+<thead class="sticky top-0 bg-surface-container-low border-b border-outline-variant z-10">
+<tr>
+<th class="px-margin py-3 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider w-32">Workflow ID</th>
+<th class="px-4 py-3 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Objective Description</th>
+<th class="px-4 py-3 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider w-40">User</th>
+<th class="px-4 py-3 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider w-32">Status</th>
+<th class="px-margin py-3 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider w-40 text-right">Timestamp</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<!-- Row 1: Running -->
+<tr class="terminal-row transition-colors cursor-pointer group" data-status="running">
+<td class="px-margin py-4 font-code-sm text-code-sm text-primary">#WF-9021</td>
+<td class="px-4 py-4">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-on-surface font-medium">Scrape E-commerce Competitor Pricing</span>
+<span class="font-code-xs text-code-xs text-on-surface-variant opacity-60">Target: 500 SKUs from amazon.com/category/electronics</span>
+</div>
+</td>
+<td class="px-4 py-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest flex items-center justify-center font-code-xs text-code-xs border border-outline-variant">JD</div>
+<span class="font-body-md text-body-md text-on-surface">j.doe</span>
+</div>
+</td>
+<td class="px-4 py-4">
+<div class="inline-flex items-center gap-2 px-2 py-0.5 rounded bg-blue-900/30 border border-blue-500/50">
+<span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
+<span class="font-label-md text-label-md text-blue-300">Running</span>
+</div>
+</td>
+<td class="px-margin py-4 font-code-sm text-code-sm text-on-surface-variant text-right">Active now</td>
+</tr>
+<!-- Row 2: Success -->
+<tr class="terminal-row transition-colors cursor-pointer group" data-status="success">
+<td class="px-margin py-4 font-code-sm text-code-sm text-primary">#WF-9019</td>
+<td class="px-4 py-4">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-on-surface font-medium">Automated Database Optimization Indexing</span>
+<span class="font-code-xs text-code-xs text-on-surface-variant opacity-60">Routine weekly maintenance on production cluster-01</span>
+</div>
+</td>
+<td class="px-4 py-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest flex items-center justify-center font-code-xs text-code-xs border border-outline-variant text-primary">S</div>
+<span class="font-body-md text-body-md text-on-surface">system</span>
+</div>
+</td>
+<td class="px-4 py-4">
+<div class="inline-flex items-center gap-2 px-2 py-0.5 rounded bg-green-900/30 border border-green-500/50">
+<span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+<span class="font-label-md text-label-md text-green-300">Success</span>
+</div>
+</td>
+<td class="px-margin py-4 font-code-sm text-code-sm text-on-surface-variant text-right">2h ago</td>
+</tr>
+<!-- Row 3: Failed -->
+<tr class="terminal-row transition-colors cursor-pointer group" data-status="failed">
+<td class="px-margin py-4 font-code-sm text-code-sm text-primary">#WF-9018</td>
+<td class="px-4 py-4">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-on-surface font-medium">S3 Backup Sync: Production Media</span>
+<span class="font-code-xs text-code-xs text-on-surface-variant opacity-60">Sync bucket-a to bucket-b-dr-region</span>
+</div>
+</td>
+<td class="px-4 py-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest flex items-center justify-center font-code-xs text-code-xs border border-outline-variant">AS</div>
+<span class="font-body-md text-body-md text-on-surface">a.smith</span>
+</div>
+</td>
+<td class="px-4 py-4">
+<div class="inline-flex items-center gap-2 px-2 py-0.5 rounded bg-error-container/30 border border-error/50">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+<span class="font-label-md text-label-md text-error">Failed</span>
+</div>
+</td>
+<td class="px-margin py-4 font-code-sm text-code-sm text-on-surface-variant text-right">4h ago</td>
+</tr>
+<!-- Row 4: Success -->
+<tr class="terminal-row transition-colors cursor-pointer group" data-status="success">
+<td class="px-margin py-4 font-code-sm text-code-sm text-primary">#WF-8992</td>
+<td class="px-4 py-4">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-on-surface font-medium">Cloud Infrastructure Auto-Scaleup</span>
+<span class="font-code-xs text-code-xs text-on-surface-variant opacity-60">Provisioned 4 additional k8s nodes in us-east-1</span>
+</div>
+</td>
+<td class="px-4 py-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest flex items-center justify-center font-code-xs text-code-xs border border-outline-variant text-primary">S</div>
+<span class="font-body-md text-body-md text-on-surface">system</span>
+</div>
+</td>
+<td class="px-4 py-4">
+<div class="inline-flex items-center gap-2 px-2 py-0.5 rounded bg-green-900/30 border border-green-500/50">
+<span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+<span class="font-label-md text-label-md text-green-300">Success</span>
+</div>
+</td>
+<td class="px-margin py-4 font-code-sm text-code-sm text-on-surface-variant text-right">12h ago</td>
+</tr>
+<!-- Row 5: Success -->
+<tr class="terminal-row transition-colors cursor-pointer group" data-status="success">
+<td class="px-margin py-4 font-code-sm text-code-sm text-primary">#WF-8985</td>
+<td class="px-4 py-4">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-on-surface font-medium">Security Patch: OpenSSL CVE-2023</span>
+<span class="font-code-xs text-code-xs text-on-surface-variant opacity-60">Fleet-wide update of linux headers on all staging servers</span>
+</div>
+</td>
+<td class="px-4 py-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest flex items-center justify-center font-code-xs text-code-xs border border-outline-variant">MK</div>
+<span class="font-body-md text-body-md text-on-surface">m.koval</span>
+</div>
+</td>
+<td class="px-4 py-4">
+<div class="inline-flex items-center gap-2 px-2 py-0.5 rounded bg-green-900/30 border border-green-500/50">
+<span class="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+<span class="font-label-md text-label-md text-green-300">Success</span>
+</div>
+</td>
+<td class="px-margin py-4 font-code-sm text-code-sm text-on-surface-variant text-right">1d ago</td>
+</tr>
+<!-- Row 6: Failed -->
+<tr class="terminal-row transition-colors cursor-pointer group" data-status="failed">
+<td class="px-margin py-4 font-code-sm text-code-sm text-primary">#WF-8980</td>
+<td class="px-4 py-4">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-on-surface font-medium">Data Warehouse ETL Pipeline: Nightly</span>
+<span class="font-code-xs text-code-xs text-on-surface-variant opacity-60">Ingest raw logs from CDN to Snowflake. Error: Connection timeout</span>
+</div>
+</td>
+<td class="px-4 py-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest flex items-center justify-center font-code-xs text-code-xs border border-outline-variant text-primary">S</div>
+<span class="font-body-md text-body-md text-on-surface">system</span>
+</div>
+</td>
+<td class="px-4 py-4">
+<div class="inline-flex items-center gap-2 px-2 py-0.5 rounded bg-error-container/30 border border-error/50">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+<span class="font-label-md text-label-md text-error">Failed</span>
+</div>
+</td>
+<td class="px-margin py-4 font-code-sm text-code-sm text-on-surface-variant text-right">1d ago</td>
+</tr>
+<!-- More rows would follow here -->
+</tbody>
+</table>
+</div>
+<!-- Footer / Status Bar -->
+<footer class="h-8 border-t border-outline-variant bg-surface-container flex items-center px-margin justify-between">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-green-400"></span>
+<span class="font-code-xs text-code-xs text-on-surface-variant">Fleet Status: Healthy</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-code-xs text-code-xs text-on-surface-variant">API Latency: 24ms</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="font-code-xs text-code-xs text-on-surface-variant">v2.41.0-stable</span>
+<span class="font-code-xs text-code-xs text-on-surface-variant">UTC 14:22:10</span>
+</div>
+</footer>
+</div>
+</main>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     LOGIN OVERLAY — Step 1: Choose sign-in method
+     ═══════════════════════════════════════════════════════════ -->
+<div id="login-overlay" class="fixed inset-0 z-[9999] flex items-center justify-center bg-[#0A0A0A] transition-opacity duration-400">
+  <div class="absolute inset-0 opacity-[0.03]" style="background-image:linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px);background-size:40px 40px"></div>
+
+  <!-- ── STEP 1: Main login card ── -->
+  <div id="auth-step-1" class="relative w-full max-w-sm px-8 py-10 bg-surface-container border border-outline-variant rounded-lg shadow-2xl flex flex-col gap-5 transition-all duration-300">
+    <div class="text-center">
+      <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-primary mb-4">
+        <span class="material-symbols-outlined text-surface" style="font-size:22px">terminal</span>
+      </div>
+      <h1 class="font-headline-md text-headline-md text-primary font-bold">Prompt2Terminal</h1>
+      <p class="font-code-xs text-code-xs text-on-surface-variant mt-1 opacity-60">Control Center — Secure Access</p>
+    </div>
+
+    <!-- Google Sign-In button -->
+    <button id="google-signin-btn"
+      class="w-full flex items-center justify-center gap-3 px-4 py-2.5 bg-white text-[#1f1f1f] font-medium text-sm rounded border border-[#dadce0] hover:bg-[#f8f8f8] hover:shadow-md active:bg-[#f0f0f0] transition-all duration-150 select-none"
+      style="font-family:'Google Sans',Roboto,sans-serif">
+      <!-- Official Google G logo SVG -->
+      <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+        <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+        <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
+        <path d="M3.964 10.706A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.706V4.962H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.038l3.007-2.332z" fill="#FBBC05"/>
+        <path d="M9 3.576c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.962L3.964 7.294C4.672 5.163 6.656 3.576 9 3.576z" fill="#EA4335"/>
+      </svg>
+      Sign in with Google
+    </button>
+
+    <!-- Divider -->
+    <div class="flex items-center gap-3">
+      <div class="flex-1 h-px bg-outline-variant"></div>
+      <span class="font-code-xs text-code-xs text-on-surface-variant opacity-50">or</span>
+      <div class="flex-1 h-px bg-outline-variant"></div>
+    </div>
+
+    <!-- Username/password form -->
+    <div class="flex flex-col gap-4">
+      <div class="flex flex-col gap-1.5">
+        <label class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest text-[10px]">Username</label>
+        <input id="login-username" type="text" value="Admin_User"
+          class="bg-surface-container-lowest border border-outline-variant px-3 py-2.5 font-code-sm text-code-sm text-primary rounded focus:outline-none focus:border-primary transition-colors"
+          placeholder="Enter username"/>
+      </div>
+      <div class="flex flex-col gap-1.5">
+        <label class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest text-[10px]">Password</label>
+        <div class="relative">
+          <input id="login-password" type="password"
+            class="w-full bg-surface-container-lowest border border-outline-variant px-3 py-2.5 font-code-sm text-code-sm text-primary rounded focus:outline-none focus:border-primary transition-colors pr-10"
+            placeholder="Enter password"/>
+          <button type="button" id="toggle-pw" class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors">
+            <span class="material-symbols-outlined text-[18px]">visibility</span>
+          </button>
+        </div>
+      </div>
+      <p id="login-error" class="hidden font-code-xs text-code-xs text-error">Incorrect username or password.</p>
+    </div>
+
+    <button id="login-submit"
+      class="w-full bg-primary text-surface font-label-md text-label-md font-bold py-3 rounded hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2">
+      <span class="material-symbols-outlined text-[18px]">lock_open</span>
+      Sign In
+    </button>
+
+    <p class="text-center font-code-xs text-code-xs text-on-surface-variant opacity-40">Demo password: "admin" &nbsp;|&nbsp; Google: any email</p>
+  </div>
+
+  <!-- ── STEP 2: Simulated Google account picker ── -->
+  <div id="auth-step-2" class="hidden relative w-full max-w-[400px] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col" style="font-family:'Google Sans',Roboto,arial,sans-serif;color:#202124">
+    <!-- Google header -->
+    <div class="px-10 pt-8 pb-4 flex flex-col items-center">
+      <svg height="24" viewBox="0 0 74 24" xmlns="http://www.w3.org/2000/svg" class="mb-6">
+        <path d="M9.24 8.19v2.46h5.88c-.18 1.38-.64 2.34-1.44 3.06-.88.78-2.16 1.62-4.44 1.62-3.56 0-6.34-2.86-6.34-6.42s2.78-6.42 6.34-6.42c1.84 0 3.18.72 4.16 1.62l1.72-1.72C13.78 1.07 11.86 0 9.24 0 4.28 0 .1 4.04.1 9s4.18 9 9.14 9c2.68 0 4.7-.88 6.28-2.52 1.62-1.62 2.14-3.92 2.14-5.76 0-.58-.04-1.1-.14-1.54H9.24z" fill="#4285F4"/>
+        <path d="M25 6.19c-3.21 0-5.83 2.44-5.83 5.81 0 3.34 2.62 5.81 5.83 5.81s5.83-2.46 5.83-5.81c0-3.37-2.62-5.81-5.83-5.81zm0 9.33c-1.76 0-3.28-1.45-3.28-3.52s1.52-3.52 3.28-3.52 3.28 1.45 3.28 3.52-1.52 3.52-3.28 3.52z" fill="#EA4335"/>
+        <path d="M53.58 7.49h-.09c-.57-.68-1.67-1.3-3.06-1.3C47.53 6.19 45 8.72 45 12s2.53 5.81 5.43 5.81c1.39 0 2.49-.62 3.06-1.32h.09v.81c0 2.22-1.19 3.41-3.1 3.41-1.56 0-2.53-1.12-2.93-2.07l-2.22.92c.64 1.54 2.33 3.43 5.15 3.43 2.99 0 5.52-1.76 5.52-6.05V6.49h-2.42v1zm-2.93 8.03c-1.76 0-3.1-1.5-3.1-3.52s1.34-3.52 3.1-3.52c1.74 0 3.1 1.52 3.1 3.54-.01 2.01-1.36 3.5-3.1 3.5z" fill="#4285F4"/>
+        <path d="M38 6.19c-3.21 0-5.83 2.44-5.83 5.81 0 3.34 2.62 5.81 5.83 5.81s5.83-2.46 5.83-5.81c0-3.37-2.62-5.81-5.83-5.81zm0 9.33c-1.76 0-3.28-1.45-3.28-3.52s1.52-3.52 3.28-3.52 3.28 1.45 3.28 3.52-1.52 3.52-3.28 3.52z" fill="#FBBC05"/>
+        <path d="M58.5 1h2.5v16.76H58.5z" fill="#34A853"/>
+        <path d="M67.26 15.52c-1.3 0-2.22-.59-2.82-1.76l7.77-3.21-.26-.66c-.48-1.3-1.96-3.7-4.97-3.7-2.99 0-5.48 2.35-5.48 5.81 0 3.26 2.46 5.81 5.76 5.81 2.66 0 4.2-1.63 4.84-2.57l-1.98-1.32c-.66.96-1.56 1.6-2.86 1.6zm-.18-7.15c1.03 0 1.91.53 2.2 1.28l-5.25 2.17c0-2.44 1.73-3.45 3.05-3.45z" fill="#EA4335"/>
+      </svg>
+      <h2 class="text-2xl font-normal text-[#202124] mb-1">Choose an account</h2>
+      <p class="text-sm text-[#5f6368] mb-2">to continue to <span class="font-medium text-[#202124]">Prompt2Terminal</span></p>
+    </div>
+
+    <!-- Account list -->
+    <div class="border-t border-[#e0e0e0]">
+      <button class="google-account-option w-full flex items-center gap-4 px-6 py-3 hover:bg-[#f8f9fa] transition-colors cursor-pointer text-left"
+        data-name="admin@prompt2terminal.io" data-display="Admin User" data-avatar="">
+        <div class="w-10 h-10 rounded-full bg-[#1a73e8] flex items-center justify-center text-white font-medium text-base shrink-0">A</div>
+        <div class="flex flex-col">
+          <span class="text-sm font-medium text-[#202124]">Admin User</span>
+          <span class="text-xs text-[#5f6368]">admin@prompt2terminal.io</span>
+        </div>
+      </button>
+      <button class="google-account-option w-full flex items-center gap-4 px-6 py-3 hover:bg-[#f8f9fa] transition-colors cursor-pointer text-left"
+        data-name="dev@prompt2terminal.io" data-display="Dev Account" data-avatar="">
+        <div class="w-10 h-10 rounded-full bg-[#34a853] flex items-center justify-center text-white font-medium text-base shrink-0">D</div>
+        <div class="flex flex-col">
+          <span class="text-sm font-medium text-[#202124]">Dev Account</span>
+          <span class="text-xs text-[#5f6368]">dev@prompt2terminal.io</span>
+        </div>
+      </button>
+      <button id="google-use-another" class="w-full flex items-center gap-4 px-6 py-3 hover:bg-[#f8f9fa] transition-colors cursor-pointer text-left">
+        <div class="w-10 h-10 rounded-full border-2 border-[#5f6368] flex items-center justify-center shrink-0">
+          <span style="font-family:'Material Symbols Outlined';font-size:20px;color:#5f6368">person_add</span>
+        </div>
+        <span class="text-sm text-[#202124]">Use another account</span>
+      </button>
+    </div>
+
+    <!-- Footer -->
+    <div class="px-6 py-4 border-t border-[#e0e0e0] flex justify-between text-xs text-[#5f6368]">
+      <div class="flex gap-4">
+        <a href="#" class="hover:underline" onclick="return false">Privacy Policy</a>
+        <a href="#" class="hover:underline" onclick="return false">Terms of Service</a>
+      </div>
+      <button id="google-back-btn" class="text-[#1a73e8] hover:underline font-medium">Back</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 3: Google email/password form (use another account) ── -->
+  <div id="auth-step-3" class="hidden relative w-full max-w-[400px] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col" style="font-family:'Google Sans',Roboto,arial,sans-serif;color:#202124">
+    <div class="px-10 pt-8 pb-4 flex flex-col items-center">
+      <svg height="24" viewBox="0 0 74 24" xmlns="http://www.w3.org/2000/svg" class="mb-6">
+        <path d="M9.24 8.19v2.46h5.88c-.18 1.38-.64 2.34-1.44 3.06-.88.78-2.16 1.62-4.44 1.62-3.56 0-6.34-2.86-6.34-6.42s2.78-6.42 6.34-6.42c1.84 0 3.18.72 4.16 1.62l1.72-1.72C13.78 1.07 11.86 0 9.24 0 4.28 0 .1 4.04.1 9s4.18 9 9.14 9c2.68 0 4.7-.88 6.28-2.52 1.62-1.62 2.14-3.92 2.14-5.76 0-.58-.04-1.1-.14-1.54H9.24z" fill="#4285F4"/>
+        <path d="M25 6.19c-3.21 0-5.83 2.44-5.83 5.81 0 3.34 2.62 5.81 5.83 5.81s5.83-2.46 5.83-5.81c0-3.37-2.62-5.81-5.83-5.81zm0 9.33c-1.76 0-3.28-1.45-3.28-3.52s1.52-3.52 3.28-3.52 3.28 1.45 3.28 3.52-1.52 3.52-3.28 3.52z" fill="#EA4335"/>
+        <path d="M53.58 7.49h-.09c-.57-.68-1.67-1.3-3.06-1.3C47.53 6.19 45 8.72 45 12s2.53 5.81 5.43 5.81c1.39 0 2.49-.62 3.06-1.32h.09v.81c0 2.22-1.19 3.41-3.1 3.41-1.56 0-2.53-1.12-2.93-2.07l-2.22.92c.64 1.54 2.33 3.43 5.15 3.43 2.99 0 5.52-1.76 5.52-6.05V6.49h-2.42v1zm-2.93 8.03c-1.76 0-3.1-1.5-3.1-3.52s1.34-3.52 3.1-3.52c1.74 0 3.1 1.52 3.1 3.54-.01 2.01-1.36 3.5-3.1 3.5z" fill="#4285F4"/>
+        <path d="M38 6.19c-3.21 0-5.83 2.44-5.83 5.81 0 3.34 2.62 5.81 5.83 5.81s5.83-2.46 5.83-5.81c0-3.37-2.62-5.81-5.83-5.81zm0 9.33c-1.76 0-3.28-1.45-3.28-3.52s1.52-3.52 3.28-3.52 3.28 1.45 3.28 3.52-1.52 3.52-3.28 3.52z" fill="#FBBC05"/>
+        <path d="M58.5 1h2.5v16.76H58.5z" fill="#34A853"/>
+        <path d="M67.26 15.52c-1.3 0-2.22-.59-2.82-1.76l7.77-3.21-.26-.66c-.48-1.3-1.96-3.7-4.97-3.7-2.99 0-5.48 2.35-5.48 5.81 0 3.26 2.46 5.81 5.76 5.81 2.66 0 4.2-1.63 4.84-2.57l-1.98-1.32c-.66.96-1.56 1.6-2.86 1.6zm-.18-7.15c1.03 0 1.91.53 2.2 1.28l-5.25 2.17c0-2.44 1.73-3.45 3.05-3.45z" fill="#EA4335"/>
+      </svg>
+      <h2 class="text-2xl font-normal text-[#202124] mb-1">Sign in</h2>
+      <p class="text-sm text-[#5f6368]">with your Google Account</p>
+    </div>
+    <div class="px-10 py-4 flex flex-col gap-4">
+      <div class="relative border border-[#dadce0] rounded px-3 pt-4 pb-2 focus-within:border-[#1a73e8] transition-colors">
+        <label class="absolute top-1 left-3 text-[10px] text-[#5f6368] font-medium tracking-wide">Email or phone</label>
+        <input id="google-email-input" type="email" placeholder="Enter email"
+          class="w-full outline-none bg-transparent text-sm text-[#202124] pt-1" style="font-family:inherit"/>
+      </div>
+      <p class="text-xs text-[#5f6368]">Not your computer? Use a Private Window to sign in. <a href="#" onclick="return false" class="text-[#1a73e8]">Learn more</a></p>
+    </div>
+    <div class="px-10 pb-8 flex justify-between items-center">
+      <a href="#" onclick="return false" class="text-sm text-[#1a73e8] font-medium hover:underline">Forgot email?</a>
+      <button id="google-email-next"
+        class="px-6 py-2.5 bg-[#1a73e8] text-white text-sm font-medium rounded hover:bg-[#1765cc] active:bg-[#1558b0] transition-colors"
+        style="font-family:inherit">
+        Next
+      </button>
+    </div>
+    <div class="px-6 py-3 border-t border-[#e0e0e0] flex justify-between text-xs text-[#5f6368]">
+      <div class="flex gap-4"><a href="#" onclick="return false" class="hover:underline">Privacy</a><a href="#" onclick="return false" class="hover:underline">Terms</a></div>
+      <button id="google-step3-back" class="text-[#1a73e8] font-medium hover:underline">Back</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 4: OAuth consent / permissions screen ── -->
+  <div id="auth-step-4" class="hidden relative w-full max-w-[400px] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col" style="font-family:'Google Sans',Roboto,arial,sans-serif;color:#202124">
+    <div class="px-8 pt-8 pb-4">
+      <!-- App + Google logos -->
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-12 h-12 rounded-xl bg-[#0A0A0A] flex items-center justify-center">
+          <span style="font-family:'Material Symbols Outlined';font-size:24px;color:#fff">terminal</span>
+        </div>
+        <div class="flex-1 h-px border-t border-dashed border-[#5f6368] relative">
+          <div class="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full border border-[#5f6368] bg-white flex items-center justify-center">
+            <div class="w-1 h-1 rounded-full bg-[#34a853]"></div>
+          </div>
+        </div>
+        <svg height="28" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+          <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
+          <path d="M3.964 10.706A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.706V4.962H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.038l3.007-2.332z" fill="#FBBC05"/>
+          <path d="M9 3.576c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.962L3.964 7.294C4.672 5.163 6.656 3.576 9 3.576z" fill="#EA4335"/>
+        </svg>
+      </div>
+      <h2 class="text-xl font-normal text-[#202124] mb-1">Prompt2Terminal wants to access your Google Account</h2>
+      <p id="consent-email-label" class="text-sm text-[#5f6368] mb-4">user@gmail.com</p>
+      <p class="text-sm text-[#202124] font-medium mb-2">This will allow Prompt2Terminal to:</p>
+      <ul class="space-y-2.5 mb-4">
+        <li class="flex items-start gap-2.5 text-sm text-[#202124]">
+          <span style="font-family:'Material Symbols Outlined';font-size:18px;color:#34a853;margin-top:1px">check_circle</span>
+          See your name, email address, and profile picture
+        </li>
+        <li class="flex items-start gap-2.5 text-sm text-[#202124]">
+          <span style="font-family:'Material Symbols Outlined';font-size:18px;color:#34a853;margin-top:1px">check_circle</span>
+          Associate you with your personal info on Google
+        </li>
+        <li class="flex items-start gap-2.5 text-sm text-[#202124]">
+          <span style="font-family:'Material Symbols Outlined';font-size:18px;color:#34a853;margin-top:1px">check_circle</span>
+          See your primary Google Account email address
+        </li>
+      </ul>
+      <p class="text-xs text-[#5f6368]">Make sure you trust Prompt2Terminal. You may be sharing sensitive info with this site or app. <a href="#" onclick="return false" class="text-[#1a73e8]">Learn about how Prompt2Terminal will handle your data</a>.</p>
+    </div>
+    <div class="px-8 py-4 border-t border-[#e0e0e0] flex justify-end gap-3">
+      <button id="consent-cancel"
+        class="px-5 py-2 text-sm text-[#1a73e8] font-medium rounded hover:bg-[#f0f6ff] transition-colors"
+        style="font-family:inherit">Cancel</button>
+      <button id="consent-allow"
+        class="px-5 py-2 bg-[#1a73e8] text-white text-sm font-medium rounded hover:bg-[#1765cc] transition-colors"
+        style="font-family:inherit">Allow</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 5: Authenticating spinner ── -->
+  <div id="auth-step-5" class="hidden relative w-full max-w-sm px-8 py-12 bg-surface-container border border-outline-variant rounded-lg shadow-2xl flex flex-col items-center gap-6">
+    <div class="w-14 h-14 rounded-full border-2 border-outline-variant flex items-center justify-center">
+      <svg class="animate-spin" width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <circle cx="14" cy="14" r="11" stroke="#353434" stroke-width="2.5"/>
+        <path d="M14 3 A11 11 0 0 1 25 14" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="text-center">
+      <p class="font-label-md text-label-md text-primary font-bold" id="auth-status-line">Contacting Google servers…</p>
+      <p class="font-code-xs text-code-xs text-on-surface-variant mt-1 opacity-60" id="auth-sub-line">Establishing secure OAuth 2.0 handshake</p>
+    </div>
+    <!-- mini terminal log -->
+    <div class="w-full bg-surface-container-lowest border border-outline-variant rounded p-3 font-code-xs text-code-xs space-y-1" id="auth-log-container">
+      <div class="text-on-surface-variant">Initializing…</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     VIEW: SETTINGS (Profile / Account Info)
+     ═══════════════════════════════════════════ -->
+<div class="view-panel flex-1 min-w-0" id="view-settings">
+  <div class="flex-1 flex flex-col min-w-0 bg-background h-full overflow-y-auto custom-scrollbar">
+    <!-- Header -->
+    <header class="flex items-center justify-between px-margin w-full h-14 border-b border-outline-variant bg-surface shrink-0">
+      <span class="font-code-sm text-code-sm font-bold text-primary">SETTINGS / PROFILE</span>
+      <div class="flex items-center gap-4">
+        <button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined">notifications</span></button>
+        <button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined">help_outline</span></button>
+      </div>
+    </header>
+
+    <main class="p-margin space-y-margin max-w-3xl mx-auto w-full">
+      <!-- Section title -->
+      <div>
+        <h2 class="font-headline-md text-headline-md text-primary">Profile &amp; Account</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant mt-1">Manage your personal information and account preferences.</p>
+      </div>
+
+      <!-- Avatar row -->
+      <div class="bg-surface-container-low border border-outline-variant rounded-lg p-6 flex items-center gap-6">
+        <div class="relative shrink-0">
+          <div class="w-20 h-20 rounded-full bg-surface-variant border-2 border-outline-variant overflow-hidden" id="settings-avatar-wrap">
+            <img id="settings-avatar-img" class="w-full h-full object-cover"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5SOMbgid5iXh81pv5AfNeCX3gMxfiWhKSOGkRyPZSkZP9GrapyXiH66YcYnxP4DuYyNqJmChIOGj8UcKZduPZTnXjJPslZ1XpeGVaOklxGlsBWicR6BlcXWa0Db7XYrlwSVIO60SNVV85cYUXflp8_tFrNY_BYCee93xN3RI1738umX0WgfIU-B_9KUOFM9xSC-mHC_rohgQe6K33nqNmSB4kk5zhDwy3y6miX5kn7G3mg34-w37Wgc4fYk1MWIQzVjCMSe7nybM"/>
+          </div>
+          <label for="avatar-upload" title="Change photo" class="absolute bottom-0 right-0 w-7 h-7 bg-primary rounded-full flex items-center justify-center cursor-pointer border-2 border-surface-container-low hover:opacity-80 transition-opacity">
+            <span class="material-symbols-outlined text-surface" style="font-size:14px;font-variation-settings:'FILL' 1">edit</span>
+          </label>
+          <input id="avatar-upload" type="file" accept="image/*" class="hidden"/>
+        </div>
+        <div class="flex flex-col gap-1">
+          <span class="font-headline-md text-headline-md text-primary font-bold" id="settings-display-name">Admin_User</span>
+          <span class="font-code-xs text-code-xs text-on-surface-variant">Pro Plan · Member since Oct 2023</span>
+          <span class="font-code-xs text-code-xs text-green-400 flex items-center gap-1 mt-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-green-400 inline-block"></span> Active session
+          </span>
+        </div>
+      </div>
+
+      <!-- Profile form -->
+      <div class="bg-surface-container-low border border-outline-variant rounded-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-outline-variant">
+          <h3 class="font-label-md text-label-md text-primary uppercase tracking-widest">Personal Information</h3>
+        </div>
+        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="flex flex-col gap-1.5">
+            <label class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest text-[10px]">Display Name</label>
+            <input id="field-displayname" type="text" value="Admin_User"
+              class="bg-surface-container-lowest border border-outline-variant px-3 py-2.5 font-code-sm text-code-sm text-primary rounded focus:outline-none focus:border-primary transition-colors"/>
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest text-[10px]">Email Address</label>
+            <input id="field-email" type="email" value="admin@prompt2terminal.io"
+              class="bg-surface-container-lowest border border-outline-variant px-3 py-2.5 font-code-sm text-code-sm text-primary rounded focus:outline-none focus:border-primary transition-colors"/>
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest text-[10px]">Role</label>
+            <input type="text" value="Administrator" disabled
+              class="bg-surface-container border border-outline-variant px-3 py-2.5 font-code-sm text-code-sm text-on-surface-variant rounded opacity-50 cursor-not-allowed"/>
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest text-[10px]">Timezone</label>
+            <select id="field-timezone"
+              class="bg-surface-container-lowest border border-outline-variant px-3 py-2.5 font-code-sm text-code-sm text-primary rounded focus:outline-none focus:border-primary transition-colors appearance-none">
+              <option>UTC+00:00 — London</option>
+              <option>UTC+05:30 — Chennai / Mumbai</option>
+              <option>UTC-05:00 — New York</option>
+              <option>UTC-08:00 — Los Angeles</option>
+              <option>UTC+08:00 — Singapore</option>
+              <option>UTC+09:00 — Tokyo</option>
+            </select>
+          </div>
+          <div class="md:col-span-2 flex flex-col gap-1.5">
+            <label class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest text-[10px]">Bio</label>
+            <textarea id="field-bio" rows="3"
+              class="bg-surface-container-lowest border border-outline-variant px-3 py-2.5 font-code-sm text-code-sm text-primary rounded focus:outline-none focus:border-primary transition-colors resize-none"
+              placeholder="A short description about yourself...">Platform administrator. Manages all autonomous workflow pipelines and fleet operations.</textarea>
+          </div>
+        </div>
+        <div class="px-6 py-4 border-t border-outline-variant flex items-center justify-between">
+          <p id="settings-save-msg" class="hidden font-code-xs text-code-xs text-green-400 flex items-center gap-1">
+            <span class="material-symbols-outlined text-[14px]">check_circle</span> Changes saved successfully.
+          </p>
+          <div class="ml-auto flex gap-3">
+            <button id="settings-reset-btn" class="px-4 py-2 border border-outline-variant text-on-surface-variant font-label-md text-label-md rounded hover:bg-surface-container-high transition-colors">
+              Reset
+            </button>
+            <button id="settings-save-btn" class="px-4 py-2 bg-primary text-surface font-label-md text-label-md font-bold rounded hover:opacity-90 transition-opacity flex items-center gap-2">
+              <span class="material-symbols-outlined text-[16px]">save</span> Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Danger zone -->
+      <div class="bg-surface-container-low border border-error/30 rounded-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-error/30">
+          <h3 class="font-label-md text-label-md text-error uppercase tracking-widest">Danger Zone</h3>
+        </div>
+        <div class="p-6 flex items-center justify-between">
+          <div>
+            <p class="font-body-md text-body-md text-on-surface font-medium">Sign out of all sessions</p>
+            <p class="font-code-xs text-code-xs text-on-surface-variant mt-0.5">This will log you out from all active devices.</p>
+          </div>
+          <button id="settings-logout-btn" class="px-4 py-2 border border-error/50 text-error font-label-md text-label-md rounded hover:bg-error/10 transition-colors flex items-center gap-2">
+            <span class="material-symbols-outlined text-[16px]">logout</span> Sign Out
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Combined App Script: View Router + per-view micro-interactions -->
+<script>
+    // ════════════════════════════════════════
+    // AUTH FLOW — Google OAuth simulation + password login
+    // ════════════════════════════════════════
+    const loginOverlay   = document.getElementById('login-overlay');
+    const steps          = {
+      1: document.getElementById('auth-step-1'),
+      2: document.getElementById('auth-step-2'),
+      3: document.getElementById('auth-step-3'),
+      4: document.getElementById('auth-step-4'),
+      5: document.getElementById('auth-step-5'),
+    };
+
+    function showStep(n) {
+      Object.values(steps).forEach(el => el.classList.add('hidden'));
+      steps[n].classList.remove('hidden');
+    }
+
+    // ── Password login ──
+    const loginSubmit  = document.getElementById('login-submit');
+    const loginError   = document.getElementById('login-error');
+    const loginPwField = document.getElementById('login-password');
+    const togglePw     = document.getElementById('toggle-pw');
+
+    function doPasswordLogin() {
+      const pw = loginPwField.value.trim();
+      if (pw === 'admin') {
+        const uname = document.getElementById('login-username').value.trim() || 'Admin_User';
+        completeLogin(uname, uname + '@prompt2terminal.io', null);
+      } else {
+        loginError.classList.remove('hidden');
+        loginPwField.classList.add('border-error');
+        setTimeout(() => loginPwField.classList.remove('border-error'), 1500);
+      }
+    }
+
+    loginSubmit.addEventListener('click', doPasswordLogin);
+    loginPwField.addEventListener('keydown', e => { if (e.key === 'Enter') doPasswordLogin(); });
+    document.getElementById('login-username').addEventListener('keydown', e => { if (e.key === 'Enter') loginPwField.focus(); });
+
+    togglePw.addEventListener('click', () => {
+      const show = loginPwField.type === 'password';
+      loginPwField.type = show ? 'text' : 'password';
+      togglePw.querySelector('span').textContent = show ? 'visibility_off' : 'visibility';
+    });
+
+    // ── Google button → account picker (step 2) ──
+    document.getElementById('google-signin-btn').addEventListener('click', () => showStep(2));
+    document.getElementById('google-back-btn').addEventListener('click', () => showStep(1));
+
+    // ── Account picker → consent screen (step 4) ──
+    document.querySelectorAll('.google-account-option').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const email = btn.dataset.name;
+        const display = btn.dataset.display;
+        document.getElementById('consent-email-label').textContent = email;
+        steps[4]._pendingEmail   = email;
+        steps[4]._pendingDisplay = display;
+        showStep(4);
+      });
+    });
+
+    // ── Use another account → email form (step 3) ──
+    document.getElementById('google-use-another').addEventListener('click', () => showStep(3));
+    document.getElementById('google-step3-back').addEventListener('click', () => showStep(2));
+
+    document.getElementById('google-email-next').addEventListener('click', () => {
+      const email = document.getElementById('google-email-input').value.trim();
+      if (!email || !email.includes('@')) {
+        document.getElementById('google-email-input').style.borderColor = '#d93025';
+        setTimeout(() => document.getElementById('google-email-input').style.borderColor = '', 1500);
+        return;
+      }
+      document.getElementById('consent-email-label').textContent = email;
+      steps[4]._pendingEmail   = email;
+      steps[4]._pendingDisplay = email.split('@')[0];
+      showStep(4);
+    });
+
+    // ── Consent cancel ──
+    document.getElementById('consent-cancel').addEventListener('click', () => showStep(1));
+
+    // ── Consent allow → spinner + fake OAuth logs ──
+    document.getElementById('consent-allow').addEventListener('click', () => {
+      showStep(5);
+      const email   = steps[4]._pendingEmail   || 'user@gmail.com';
+      const display = steps[4]._pendingDisplay || 'User';
+      runOAuthSpinner(display, email);
+    });
+
+    function runOAuthSpinner(displayName, email) {
+      const statusLine = document.getElementById('auth-status-line');
+      const subLine    = document.getElementById('auth-sub-line');
+      const logEl      = document.getElementById('auth-log-container');
+
+      const authLines = [
+        { status: 'Contacting Google servers…',   sub: 'Establishing secure OAuth 2.0 handshake',  log: { color: 'text-on-surface-variant', text: '[oauth]  GET accounts.google.com/o/oauth2/v2/auth' } },
+        { status: 'Exchanging authorization code…', sub: 'Requesting access + ID tokens',           log: { color: 'text-blue-400',           text: '[token]  POST oauth2.googleapis.com/token → 200 OK' } },
+        { status: 'Verifying ID token…',           sub: 'Validating JWT signature & claims',        log: { color: 'text-blue-400',           text: '[jwt]    iss: accounts.google.com · aud: p2t-client' } },
+        { status: 'Fetching profile…',             sub: 'GET userinfo endpoint',                    log: { color: 'text-primary',            text: '[profile] name="' + displayName + '" email="' + email + '"' } },
+        { status: 'Creating session…',             sub: 'Writing secure HttpOnly session cookie',   log: { color: 'text-green-400',          text: '[session] token signed · expires in 24h' } },
+        { status: 'Access granted ✓',              sub: 'Redirecting to Control Center…',          log: { color: 'text-green-400',          text: '[auth]   SUCCESS — welcome, ' + displayName } },
+      ];
+
+      logEl.innerHTML = '';
+      let i = 0;
+      function nextStep() {
+        if (i >= authLines.length) {
+          setTimeout(() => completeLogin(displayName, email, null), 600);
+          return;
+        }
+        const line = authLines[i];
+        statusLine.textContent = line.status;
+        subLine.textContent    = line.sub;
+        const div = document.createElement('div');
+        div.className = line.log.color;
+        div.textContent = line.log.text;
+        logEl.appendChild(div);
+        logEl.scrollTop = logEl.scrollHeight;
+        i++;
+        setTimeout(nextStep, 700 + Math.random() * 300);
+      }
+      nextStep();
+    }
+
+    // ── Final: complete login & enter the app ──
+    function completeLogin(displayName, email, avatarSrc) {
+      // Update sidebar + settings
+      document.getElementById('sidebar-username').textContent = displayName;
+      document.getElementById('settings-display-name').textContent = displayName;
+      document.getElementById('field-displayname').value = displayName;
+      document.getElementById('field-email').value = email;
+
+      loginError.classList.add('hidden');
+      loginOverlay.style.transition = 'opacity 0.4s ease';
+      loginOverlay.style.opacity = '0';
+      setTimeout(() => loginOverlay.style.display = 'none', 420);
+    }
+
+    // ── Logout ──
+    function doLogout() {
+      loginPwField.value = '';
+      loginError.classList.add('hidden');
+      showStep(1);
+      loginOverlay.style.display = 'flex';
+      loginOverlay.style.opacity = '0';
+      requestAnimationFrame(() => {
+        loginOverlay.style.transition = 'opacity 0.3s ease';
+        loginOverlay.style.opacity = '1';
+      });
+    }
+
+    document.getElementById('logout-btn').addEventListener('click', doLogout);
+    document.getElementById('settings-logout-btn').addEventListener('click', doLogout);
+
+    // ════════════════════════════════════════
+    // VIEW ROUTER
+    // ════════════════════════════════════════
+    const views = {
+        'new-workflow': document.getElementById('view-new-workflow'),
+        'reports':      document.getElementById('view-reports'),
+        'history':      document.getElementById('view-history'),
+        'settings':     document.getElementById('view-settings'),
+    };
+    const navLinks = document.querySelectorAll('#main-nav .nav-link[data-view]');
+
+    function setActiveView(name) {
+        if (!views[name]) name = 'new-workflow';
+        Object.entries(views).forEach(([key, el]) => {
+            el.classList.toggle('active', key === name);
+        });
+        navLinks.forEach(link => {
+            link.classList.toggle('nav-active', link.dataset.view === name);
+        });
+        history.replaceState(null, '', '#' + name);
+    }
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            setActiveView(link.dataset.view);
+        });
+    });
+
+    const initialView = (location.hash || '#new-workflow').replace('#', '');
+    setActiveView(initialView);
+
+    // ════════════════════════════════════════
+    // SETTINGS: Avatar upload
+    // ════════════════════════════════════════
+    document.getElementById('avatar-upload').addEventListener('change', function() {
+        const file = this.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            document.getElementById('settings-avatar-img').src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // ════════════════════════════════════════
+    // SETTINGS: Save / Reset
+    // ════════════════════════════════════════
+    const originalValues = {
+        displayname: document.getElementById('field-displayname').value,
+        email:       document.getElementById('field-email').value,
+        timezone:    document.getElementById('field-timezone').value,
+        bio:         document.getElementById('field-bio').value,
+    };
+
+    document.getElementById('settings-save-btn').addEventListener('click', () => {
+        const newName = document.getElementById('field-displayname').value.trim() || 'Admin_User';
+        // Reflect name change everywhere
+        document.getElementById('sidebar-username').textContent = newName;
+        document.getElementById('settings-display-name').textContent = newName;
+
+        const msg = document.getElementById('settings-save-msg');
+        msg.classList.remove('hidden');
+        setTimeout(() => msg.classList.add('hidden'), 3000);
+    });
+
+    document.getElementById('settings-reset-btn').addEventListener('click', () => {
+        document.getElementById('field-displayname').value = originalValues.displayname;
+        document.getElementById('field-email').value       = originalValues.email;
+        document.getElementById('field-timezone').value    = originalValues.timezone;
+        document.getElementById('field-bio').value         = originalValues.bio;
+    });
+
+    // ════════════════════════════════════════
+    // PAGE 1: Terminal log auto-stream
+    // ════════════════════════════════════════
+    const terminal = document.getElementById('terminal-stream');
+    const logs = [
+        { t: '14:06:01', msg: 'PLANNER: Synthesizing resource allocation for Step 2...', color: 'text-primary' },
+        { t: '14:06:05', msg: 'DEBUG: Cache hit on previous workflow fragment 992-B.', color: 'text-on-surface-variant' },
+        { t: '14:06:08', msg: 'INFO: Planning phase 45% complete.', color: 'text-blue-400' },
+        { t: '14:06:12', msg: 'SYSTEM: Entropy levels within normal operating parameters.', color: 'text-green-400 opacity-60' }
+    ];
+    let logIndex = 0;
+    function addLog() {
+        if (logIndex >= logs.length || !terminal) return;
+        const log = logs[logIndex];
+        const div = document.createElement('div');
+        div.className = 'flex gap-4 transition-opacity duration-500';
+        div.innerHTML = `<span class="w-20 shrink-0 text-on-surface-variant">[${log.t}]</span><span class="${log.color}">${log.msg}</span>`;
+        terminal.insertBefore(div, terminal.lastElementChild);
+        terminal.scrollTop = terminal.scrollHeight;
+        logIndex++;
+        setTimeout(addLog, Math.random() * 3000 + 2000);
+    }
+    setTimeout(addLog, 2000);
+
+    // PAGE 1: Terminal Search
+    const terminalSearchBtn   = document.getElementById('terminal-search-btn');
+    const terminalSearchBar   = document.getElementById('terminal-search-bar');
+    const terminalSearchInput = document.getElementById('terminal-search-input');
+    const terminalSearchClear = document.getElementById('terminal-search-clear');
+
+    function applyTerminalSearch(query) {
+        const rows = terminal.querySelectorAll('.flex.gap-4');
+        const q = query.trim().toLowerCase();
+        rows.forEach(row => { row.style.display = (!q || row.textContent.toLowerCase().includes(q)) ? '' : 'none'; });
+    }
+    terminalSearchBtn.addEventListener('click', () => {
+        const hidden = terminalSearchBar.classList.contains('hidden');
+        terminalSearchBar.classList.toggle('hidden', !hidden);
+        if (hidden) terminalSearchInput.focus();
+        else { terminalSearchInput.value = ''; applyTerminalSearch(''); }
+    });
+    terminalSearchInput.addEventListener('input', () => applyTerminalSearch(terminalSearchInput.value));
+    terminalSearchClear.addEventListener('click', () => {
+        terminalSearchInput.value = ''; applyTerminalSearch('');
+        terminalSearchBar.classList.add('hidden');
+    });
+
+    // PAGE 1: Terminal Download
+    document.getElementById('terminal-download-btn').addEventListener('click', () => {
+        const lines = [...terminal.querySelectorAll('.flex.gap-4')].map(r => r.textContent.trim()).join('\n');
+        const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([lines], {type:'text/plain'})), download: 'terminal-logs.txt' });
+        a.click();
+    });
+
+    // PAGE 1: Terminal Clear
+    document.getElementById('terminal-close-btn').addEventListener('click', () => {
+        const cursor = terminal.querySelector('.animate-pulse');
+        [...terminal.children].forEach(child => { if (!child.contains(cursor)) child.remove(); });
+        terminalSearchBar.classList.add('hidden'); terminalSearchInput.value = '';
+    });
+
+    // Global button feedback
+    document.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('mousedown', () => btn.classList.add('opacity-80','duration-100'));
+        btn.addEventListener('mouseup',   () => btn.classList.remove('opacity-80'));
+    });
+
+    // ════════════════════════════════════════
+    // PAGE 2: Reports
+    // ════════════════════════════════════════
+    document.querySelectorAll('#view-reports .panel-border').forEach(card => {
+        card.addEventListener('mouseenter', () => { card.style.borderColor='#404040'; card.style.transition='border-color 0.2s ease'; });
+        card.addEventListener('mouseleave', () => { card.style.borderColor='#262626'; });
+    });
+
+    const replayCopyBtn = document.getElementById('replay-copy-btn');
+    replayCopyBtn.addEventListener('click', () => {
+        const replayBody = replayCopyBtn.closest('.panel-border').querySelector('.p-6');
+        const text = [...replayBody.querySelectorAll('.flex.gap-4')]
+            .map(row => [...row.querySelectorAll('span')].slice(1).map(s => s.textContent).join('').trim())
+            .filter(Boolean).join('\n');
+        navigator.clipboard.writeText(text).then(() => {
+            replayCopyBtn.textContent = 'check'; replayCopyBtn.classList.add('text-green-400');
+            setTimeout(() => { replayCopyBtn.textContent = 'content_copy'; replayCopyBtn.classList.remove('text-green-400'); }, 2000);
+        }).catch(() => {
+            replayCopyBtn.textContent = 'error'; replayCopyBtn.classList.add('text-error');
+            setTimeout(() => { replayCopyBtn.textContent = 'content_copy'; replayCopyBtn.classList.remove('text-error'); }, 2000);
+        });
+    });
+
+    // ════════════════════════════════════════
+    // PAGE 3: History — Filter + row select
+    // ════════════════════════════════════════
+    const filterBtn      = document.getElementById('filter-btn');
+    const filterDropdown = document.getElementById('filter-dropdown');
+    filterBtn.addEventListener('click', e => { e.stopPropagation(); filterDropdown.classList.toggle('hidden'); });
+    document.addEventListener('click', e => { if (!filterDropdown.contains(e.target) && e.target !== filterBtn) filterDropdown.classList.add('hidden'); });
+
+    const historyRows    = document.querySelectorAll('#view-history .terminal-row');
+    const recordCountEl  = document.querySelector('#view-history .font-code-xs.text-code-xs.text-on-surface-variant:last-child');
+    const activeFilterChip = document.querySelector('#view-history .flex.items-center.gap-1.px-2');
+
+    document.querySelectorAll('.filter-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+            const filter = opt.dataset.filter;
+            let shown = 0;
+            historyRows.forEach(row => {
+                const visible = filter === 'all' || row.dataset.status === filter;
+                row.style.display = visible ? '' : 'none';
+                if (visible) shown++;
+            });
+            if (activeFilterChip) {
+                const label = filter === 'all' ? 'All' : filter.charAt(0).toUpperCase() + filter.slice(1);
+                activeFilterChip.innerHTML = `Status: ${label} <span class="material-symbols-outlined text-[12px]">close</span>`;
+            }
+            if (recordCountEl) recordCountEl.textContent = `${shown} Records Found`;
+            document.querySelectorAll('.filter-option').forEach(o => o.classList.remove('bg-surface-container-high'));
+            opt.classList.add('bg-surface-container-high');
+            filterDropdown.classList.add('hidden');
+        });
+    });
+    if (activeFilterChip) {
+        activeFilterChip.style.cursor = 'pointer';
+        activeFilterChip.addEventListener('click', () => {
+            historyRows.forEach(row => row.style.display = '');
+            activeFilterChip.innerHTML = `Status: All <span class="material-symbols-outlined text-[12px]">close</span>`;
+            if (recordCountEl) recordCountEl.textContent = `${historyRows.length} Records Found`;
+            document.querySelectorAll('.filter-option').forEach(o => o.classList.remove('bg-surface-container-high'));
+        });
+    }
+    historyRows.forEach(row => {
+        row.addEventListener('click', () => {
+            historyRows.forEach(r => r.classList.remove('bg-surface-container-high','border-l-2','border-primary'));
+            row.classList.add('bg-surface-container-high','border-l-2','border-primary');
+        });
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+            e.preventDefault();
+            const activeViewEl = document.querySelector('.view-panel.active');
+            const searchInput  = activeViewEl ? activeViewEl.querySelector('input[type="text"]') : null;
+            if (searchInput) { searchInput.focus(); searchInput.classList.add('ring-2','ring-primary'); setTimeout(() => searchInput.classList.remove('ring-2'), 500); }
+        }
+    });
+</script>
+</body>
+</html>
